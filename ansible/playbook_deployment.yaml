@@ -1,0 +1,44 @@
+# Module Title:         Network Systems and Administration
+# Module Code:          B9IS121
+# Module Instructor:    Kingsley Ibomo
+# Assessment Title:     Automated Container Deployment and Administration in the Cloud
+# Assessment Number:    1
+# Assessment Type:      Practical
+# Assessment Weighting: 60%
+# Assessment Due Date:  Sunday, 9 November 2025, 8:36 AM
+# Student Name:         Mateus Fonseca Campos
+# Student ID:           20095949
+# Student Email:        20095949@mydbs.ie
+# GitHub Repo:          TBA
+
+# Downloads, installs and configures Docker on the web server
+- name: Docker on the web server
+  hosts: web_servers
+
+  # Loads environment variables from .env file
+  vars:
+    env: "{{ lookup('ansible.builtin.file', '../.env') }}"
+
+  tasks:
+    # Deploys Docker containers to web server
+    - name: Deploy
+      local_action:
+        # builds and pushes local Docker image to remote repository
+        ansible.builtin.shell: |
+          "sudo docker login -u $(grep -w DOCKER_USERNAME {{ env }} | sed -e 's/.*=//') -p $(grep -w DOCKERHUB_TOKEN {{ env }} | sed -e 's/.*=//')"
+          sudo docker build -t 20095949/networking-ca1:latest ../flask/.
+          sudo docker push 20095949/networking-ca1:latest
+      # copies Docker compose file from local host to remote host over SSH
+      ansible.builtin.copy:
+        src: ../compose.yaml
+        dest: ~/.
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+      # pulls and runs Docker containers on the web server
+      ansible.builtin.shell: |
+        "sudo docker login -u $(grep -w DOCKER_USERNAME {{ env }} | sed -e 's/.*=//') -p $(grep -w DOCKERHUB_TOKEN {{ env }} | sed -e 's/.*=//')"
+        sudo docker compose pull
+        sudo docker stop $(sudo docker ps -a -q) || true
+        sudo docker system prune -f
+        sudo docker compose up -d

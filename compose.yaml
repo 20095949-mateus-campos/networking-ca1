@@ -1,0 +1,41 @@
+# Module Title:         Network Systems and Administration
+# Module Code:          B9IS121
+# Module Instructor:    Kingsley Ibomo
+# Assessment Title:     Automated Container Deployment and Administration in the Cloud
+# Assessment Number:    1
+# Assessment Type:      Practical
+# Assessment Weighting: 60%
+# Assessment Due Date:  Sunday, 9 November 2025, 8:36 AM
+# Student Name:         Mateus Fonseca Campos
+# Student ID:           20095949
+# Student Email:        20095949@mydbs.ie
+# GitHub Repo:          TBA
+
+# List of services to be composed, where each service is a Docker container
+services:
+  app:
+    container_name: app
+    image: 20095949/networking-ca1:latest
+    ports:
+      - 8000:8000
+    networks:
+      ca1-net:
+        aliases:
+          - ca1-net-app
+    restart: always
+  proxy:
+    container_name: proxy
+    image: nginx:latest
+    ports:
+      - 80:80
+    networks:
+      ca1-net:
+        aliases:
+          - ca1-net-proxy
+    restart: always
+    volumes: 
+      - $PWD/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+networks:
+  ca1-net: {}

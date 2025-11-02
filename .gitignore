@@ -1,0 +1,17 @@
+# cached bytecode
+__pycache__/
+
+# virtual environments
+.venv/
+
+# ssh keys
+*.pem
+
+# Local .terraform directories
+.terraform/
+
+# .tfstate files
+*.tfstate*
+
+# environment variables
+.env
