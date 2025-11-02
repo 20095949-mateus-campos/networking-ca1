@@ -21,23 +21,38 @@
 
   tasks:
     # Deploys Docker containers to web server
-    - name: Deploy
+    - name: push
       local_action:
         # builds and pushes local Docker image to remote repository
-        ansible.builtin.shell: |
-          "sudo docker login -u $(grep -w DOCKER_USERNAME {{ env }} | sed -e 's/.*=//') -p $(grep -w DOCKERHUB_TOKEN {{ env }} | sed -e 's/.*=//')"
-          sudo docker build -t 20095949/networking-ca1:latest ../flask/.
-          sudo docker push 20095949/networking-ca1:latest
+        module: shell
+        cmd: |
+          "docker login -u $(echo {{ env }} | grep -w DOCKER_USERNAME | sed -e 's/.*=//') -p $(echo {{ env }} | grep -w DOCKERHUB_TOKEN | sed -e 's/.*=//')"
+          docker build -t 20095949/networking-ca1:latest ../flask/.
+          docker push 20095949/networking-ca1:latest
+    - name: mkdir 
       # copies Docker compose file from local host to remote host over SSH
-      ansible.builtin.copy:
-        src: ../compose.yaml
-        dest: ~/.
+      ansible.builtin.file:
+        path: ~/nginx
+        state: directory
         owner: ubuntu
         group: ubuntu
-        mode: '0644'
+        mode: '0777'
+    - name: copy 
+      ansible.builtin.copy:
+        src: "{{ item.src }}" 
+        dest: "{{ item.dest }}"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0777'
+      loop:
+        - src: ../compose.yaml
+          dest: ~/.
+        - src: ../nginx/default.conf
+          dest: ~/nginx/default.conf
+    - name: pull and run   
       # pulls and runs Docker containers on the web server
       ansible.builtin.shell: |
-        "sudo docker login -u $(grep -w DOCKER_USERNAME {{ env }} | sed -e 's/.*=//') -p $(grep -w DOCKERHUB_TOKEN {{ env }} | sed -e 's/.*=//')"
+        "docker login -u $(echo {{ env }} | grep -w DOCKER_USERNAME | sed -e 's/.*=//') -p $(echo {{ env }} | grep -w DOCKERHUB_TOKEN | sed -e 's/.*=//')"
         sudo docker compose pull
         sudo docker stop $(sudo docker ps -a -q) || true
         sudo docker system prune -f

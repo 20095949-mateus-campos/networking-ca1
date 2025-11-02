@@ -21,7 +21,7 @@ services:
     networks:
       ca1-net:
         aliases:
-          - ca1-net-app
+          - backend-server
     restart: always
   proxy:
     container_name: proxy
@@ -31,11 +31,11 @@ services:
     networks:
       ca1-net:
         aliases:
-          - ca1-net-proxy
+          - proxy-server
     restart: always
     volumes: 
       - $PWD/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
 networks:
-  ca1-net: {}
+  ca1-net:
