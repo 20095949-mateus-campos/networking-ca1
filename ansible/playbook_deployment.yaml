@@ -9,10 +9,12 @@
 # Student Name:         Mateus Fonseca Campos
 # Student ID:           20095949
 # Student Email:        20095949@mydbs.ie
-# GitHub Repo:          TBA
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 3: Docker Container Deployment
 
 # Downloads, installs and configures Docker on the web server
-- name: Docker on the web server
+- name: Deploy Docker containers
   hosts: web_servers
 
   # Loads environment variables from .env file
@@ -21,38 +23,48 @@
 
   tasks:
     # Deploys Docker containers to web server
-    - name: push
+    # builds and pushes local Docker image to remote repository
+    - name: Build and push Docker image
       local_action:
-        # builds and pushes local Docker image to remote repository
         module: shell
         cmd: |
           "docker login -u $(echo {{ env }} | grep -w DOCKER_USERNAME | sed -e 's/.*=//') -p $(echo {{ env }} | grep -w DOCKERHUB_TOKEN | sed -e 's/.*=//')"
           docker build -t 20095949/networking-ca1:latest ../flask/.
           docker push 20095949/networking-ca1:latest
-    - name: mkdir 
-      # copies Docker compose file from local host to remote host over SSH
+    # creates directory to house Nginx file(s) on the web server
+    - name: Create Nginx directory
       ansible.builtin.file:
         path: ~/nginx
         state: directory
         owner: ubuntu
         group: ubuntu
-        mode: '0777'
-    - name: copy 
+        mode: '0755'
+    # creates directory to house Docker compose file on the web server
+    - name: Create Docker directory
+      ansible.builtin.file:
+        path: ~/docker
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+    # copies Docker compose file and nginx config file from local host to remote host
+    - name: Copy Docker and Nginx files
       ansible.builtin.copy:
         src: "{{ item.src }}" 
         dest: "{{ item.dest }}"
         owner: ubuntu
         group: ubuntu
-        mode: '0777'
+        mode: '0644'
       loop:
-        - src: ../compose.yaml
-          dest: ~/.
+        - src: ../docker/compose.yaml
+          dest: ~/docker/compose.yaml
         - src: ../nginx/default.conf
           dest: ~/nginx/default.conf
-    - name: pull and run   
-      # pulls and runs Docker containers on the web server
+    # pulls and runs Docker containers on the web server
+    - name: Pull and run Docker image
       ansible.builtin.shell: |
         "docker login -u $(echo {{ env }} | grep -w DOCKER_USERNAME | sed -e 's/.*=//') -p $(echo {{ env }} | grep -w DOCKERHUB_TOKEN | sed -e 's/.*=//')"
+        cd docker
         sudo docker compose pull
         sudo docker stop $(sudo docker ps -a -q) || true
         sudo docker system prune -f

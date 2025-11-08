@@ -9,31 +9,42 @@
 # Student Name:         Mateus Fonseca Campos
 # Student ID:           20095949
 # Student Email:        20095949@mydbs.ie
-# GitHub Repo:          TBA
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 1: Infrastructure Setup
 
 # Defines Amazon Web Services (AWS) as the cloud infrastructure provider
 provider "aws" {
   region = "eu-west-1" # physical location of the infrastructure is Ireland
 }
 
+# Uncomment the block below once write-only public key attribute has been implemented by HashiCorp for the resource aws_key_pair (https://github.com/hashicorp/terraform-provider-aws/issues/41922)
 # Generates private key for SSH connection
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+# ephemeral "tls_private_key" "private_key" {
+#   algorithm = "RSA"
+#   rsa_bits  = 4096
+# }
+
+# Reads content from locally generated SSH public key (not needed if using ephemeral tls_private_key)
+data "local_sensitive_file" "public_key" {
+  filename = "../net_ca1_key.pem.pub"
 }
 
 # Creates key pair for SSH connection
 resource "aws_key_pair" "key_pair" {
   key_name   = "net_ca1_key"
-  public_key = tls_private_key.private_key.public_key_openssh # extracts public key from previously generated private key
+  public_key = data.local_sensitive_file.public_key.content # pass content from locally generated SSH public key (if using ephemeral tls_private_key, then comment out this line and uncomment the next two)
+  # public_key_wo = ephemeral.tls_private_key.private_key.public_key_openssh # extracts public key from previously generated private key
+  # public_key_wo_version = 1
 }
 
+# Uncomment the block below if using ephemeral tls_private_key
 # Saves private key in local host
-resource "local_sensitive_file" "local_private_key" {
-  filename        = "${aws_key_pair.key_pair.key_name}.pem"     # saves as net_ca1_key.pem
-  content         = tls_private_key.private_key.private_key_pem # file content is the private key
-  file_permission = "0400"                                      # onwer can read, all else not allowed
-}
+# resource "local_sensitive_file" "local_private_key" {
+  # filename        = "../${aws_key_pair.key_pair.key_name}.pem"     # saves as net_ca1_key.pem
+#   content         = tls_private_key.private_key.private_key_pem # file content is the private key
+#   file_permission = "0400"                                      # onwer can read, all else not allowed
+# }
 
 # Creates security group (firewall configuration) to allow HTTP, HTTPS and SSH traffic
 resource "aws_security_group" "allow_http_https_ssh" {
@@ -68,7 +79,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_https_ipv4" {
 # Crates rule to allow all inbound SSH traffic on port 22
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_ssh" {
   security_group_id = aws_security_group.allow_http_https_ssh.id
-  # cidr_ipv4         = "${data.http.my_ip.response_body}/32" # only accessible from my local host
+  # cidr_ipv4 = "${data.http.my_ip.response_body}/32" # only accessible from my local host
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 22
   ip_protocol = "tcp"

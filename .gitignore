@@ -6,12 +6,10 @@ __pycache__/
 
 # ssh keys
 *.pem
+*.pem.*
 
 # Local .terraform directories
 .terraform/
-
-# .tfstate files
-*.tfstate*
 
 # environment variables
 .env

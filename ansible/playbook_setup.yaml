@@ -9,10 +9,12 @@
 # Student Name:         Mateus Fonseca Campos
 # Student ID:           20095949
 # Student Email:        20095949@mydbs.ie
-# GitHub Repo:          TBA
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 2: Configuration Management
 
 # Downloads, installs and configures Docker on the web server
-- name: Docker on the web server
+- name: Configure web server environment
   hosts: web_servers
 
   tasks:

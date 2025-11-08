@@ -1,11 +1,26 @@
+# Module Title:         Network Systems and Administration
+# Module Code:          B9IS121
+# Module Instructor:    Kingsley Ibomo
+# Assessment Title:     Automated Container Deployment and Administration in the Cloud
+# Assessment Number:    1
+# Assessment Type:      Practical
+# Assessment Weighting: 60%
+# Assessment Due Date:  Sunday, 9 November 2025, 8:36 AM
+# Student Name:         Mateus Fonseca Campos
+# Student ID:           20095949
+# Student Email:        20095949@mydbs.ie
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 4: CI/CD Pipeline Integration
+
 name: CI/CD – Dockerized Flask App
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master" ] # Execute actions whenever there is a push to the main/master branch
 
 jobs:
-  build-push:
+  build-push: # build and push Docker image to Docker Hub; run by GitHub-hosted runner
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     
@@ -31,7 +46,7 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_PROJECT_NAME }}:latest
 
-  pull:
+  pull: # pull latest Docker image from Docker Hub and recompose; run by self-hosted runner
     name: Pull and run Docker Image
     runs-on: self-hosted
     needs: build-push

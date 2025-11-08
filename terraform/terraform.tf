@@ -9,7 +9,9 @@
 # Student Name:         Mateus Fonseca Campos
 # Student ID:           20095949
 # Student Email:        20095949@mydbs.ie
-# GitHub Repo:          TBA
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 1: Infrastructure Setup
 
 # Tells Terraform to install all required providers to run the main script
 terraform {

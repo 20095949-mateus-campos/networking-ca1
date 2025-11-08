@@ -9,7 +9,9 @@
 # Student Name:         Mateus Fonseca Campos
 # Student ID:           20095949
 # Student Email:        20095949@mydbs.ie
-# GitHub Repo:          TBA
+# GitHub Repo:          https://github.com/20095949-mateus-campos/networking-ca1
+
+# This file belongs to Part 3: Docker Container Deployment
 
 # List of services to be composed, where each service is a Docker container
 services:
@@ -17,7 +19,7 @@ services:
     container_name: app
     image: 20095949/networking-ca1:latest
     ports:
-      - 8000:8000
+      - 8000:8000 # host_port:container_port
     networks:
       ca1-net:
         aliases:
@@ -27,14 +29,14 @@ services:
     container_name: proxy
     image: nginx:latest
     ports:
-      - 80:80
+      - 80:80 # host_port:container_port
     networks:
       ca1-net:
         aliases:
           - proxy-server
     restart: always
     volumes: 
-      - $PWD/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - $PWD/../nginx/default.conf:/etc/nginx/conf.d/default.conf # host_volume:container_volume
     depends_on:
       - app
 networks:
