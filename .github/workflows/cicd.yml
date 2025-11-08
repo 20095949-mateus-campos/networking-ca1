@@ -66,6 +66,7 @@ jobs:
 
     - name: Run image
       run: |
+        cd docker
         sudo docker stop $(sudo docker ps -a -q) || true
         sudo docker system prune -f
         sudo docker compose up -d
