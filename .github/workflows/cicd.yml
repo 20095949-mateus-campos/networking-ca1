@@ -62,7 +62,9 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Pull image
-      run: sudo docker compose pull
+      run: |
+        cd docker
+        sudo docker compose pull
 
     - name: Run image
       run: |
