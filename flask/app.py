@@ -25,7 +25,7 @@ app.wsgi_app = ProxyFix(
 
 @app.route("/")
 def hello_student():
-    version = 1
+    version = 2
 
     if version == 1:
         # Version #1
